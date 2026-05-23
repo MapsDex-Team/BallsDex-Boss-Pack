@@ -6,13 +6,13 @@ Boss battle system for **BallsDex V3**. Players battle against powerful boss ene
 
 | Command | Description |
 |---|---|
-| `/boss admin_start` | Start a boss battle with the specified ball and HP. Choose a countryball to be the boss (required). Choose HP (Required) |
 | `/boss select` | Select countryball to use against the boss. Players choose an item to use against the boss using this command |
+| `/boss ongoing` | Show your damage to the boss in the current fight |
+| `/boss admin_start` | Start a boss battle with the specified ball and HP. Choose a countryball to be the boss (required). Choose HP (Required) |
 | `/boss admin_attack` | Start a round where the Boss Attacks. With this command you can choose how much attack the boss deals (Optional, Defaulted to RNG from default 0 to 2000, can be changed in code) |
 | `/boss admin_defend` | Start a round where the Boss Defends |
 | `/boss admin_end_round` | End the current round and displays user performance about the round |
 | `/boss admin_conclude` | Finish the boss, conclude the Winner. This ends the boss battle and rewards the winner, but you can choose to have *no* winner |
-| `/boss ongoing` | Show your damage to the boss in the current fight |
 | `/boss admin_disqualify` | Disqualify a member from the boss |
 | `/boss admin_hackjoin` | Force join a user to the boss battle |
 | `/boss admin_ping` | Ping all the alive players |
@@ -24,7 +24,7 @@ Boss battle system for **BallsDex V3**. Players battle against powerful boss ene
 
 ### 1 — Important Notes
 
-1. **You must have a special called "Boss" in your dex** - This is for rewarding the winner. Make it so the special's end date is 1970. Rarity must be 0.
+1. **You must have a special called "Boss" in your dex** - This is for rewarding the winner. Make it so the special's end date is nothing and has a rarity of 0.
 
 2. **Only use a countryball as a boss** if it has both the collectible and wild cards stored, otherwise this will result in an error. Cards without wild cards do not work as a boss. If you are using a ball made from the admin panel for the boss, then it's fine, since admin panel requires wild card.
 
