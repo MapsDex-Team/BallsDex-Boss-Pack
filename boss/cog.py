@@ -212,6 +212,8 @@ class Boss(commands.GroupCog, name="boss"):
         self.bossball = None
         self.bossHP = 0
         self.bossmaxhp = 0
+        self.bossattack_image: discord.Attachment | None = None
+        self.bossdefend_image: discord.Attachment | None = None
         self.users = []
         self.usersdamage = []  # Track damage per user
         self.usersinround = []
@@ -246,7 +248,15 @@ class Boss(commands.GroupCog, name="boss"):
 
     @admin.command()
     @admin_permissions_check()
-    async def start(self, interaction: discord.Interaction["BallsDexBot"], ball: BallEnabledTransform, hp_amount: int):
+    async def start(
+        self,
+        interaction: discord.Interaction["BallsDexBot"],
+        ball: BallEnabledTransform,
+        hp_amount: int,
+        start_image: discord.Attachment | None = None,
+        defend_image: discord.Attachment | None = None,
+        attack_image: discord.Attachment | None = None,
+    ):
         """
         Start a boss battle with the specified ball
         
@@ -256,6 +266,12 @@ class Boss(commands.GroupCog, name="boss"):
             The ball to use as boss
         hp_amount: int
             HP amount for the boss
+        start_image: discord.Attachment | None
+            Optional image to use for the boss announcement
+        defend_image: discord.Attachment | None
+            Optional image to use when the boss defends
+        attack_image: discord.Attachment | None
+            Optional image to use when the boss attacks
         """
         await interaction.response.defer(ephemeral=True, thinking=True)
         
@@ -270,6 +286,8 @@ class Boss(commands.GroupCog, name="boss"):
             self.bossball = ball
             self.bossHP = hp_amount
             self.bossmaxhp = hp_amount
+            self.bossattack_image = attack_image
+            self.bossdefend_image = defend_image
             self.boss_enabled = True
             self.users = []
             self.usersinround = []
@@ -282,9 +300,12 @@ class Boss(commands.GroupCog, name="boss"):
             await interaction.followup.send(f"Boss battle started with {ball.country}!", ephemeral=True)
             
             # Prepare boss image file
-            extension = ball.collection_card.name.split(".")[-1]
-            file_location = str(ball.collection_card.path)
-            file = discord.File(file_location, filename=f"boss.{extension}")
+            if start_image is None:
+                extension = ball.collection_card.name.split(".")[-1]
+                file_location = str(ball.collection_card.path)
+                file = discord.File(file_location, filename=f"boss.{extension}")
+            else:
+                file = await start_image.to_file()
             
             # Send announcement message with join button and boss image
             view = JoinButton(self)
@@ -340,7 +361,7 @@ class Boss(commands.GroupCog, name="boss"):
                 f"You cannot select the same ball twice", ephemeral=True
             )
         
-        # Store the selection for processing in endround
+        # Store the selection for processing in end_round
         self.pending_selections[interaction.user.id] = ball
         
         # Add to selected balls and track round participation
@@ -485,7 +506,7 @@ class Boss(commands.GroupCog, name="boss"):
 
     @admin.command()
     @admin_permissions_check()
-    async def endround(self, interaction: discord.Interaction["BallsDexBot"]):
+    async def end_round(self, interaction: discord.Interaction["BallsDexBot"]):
         """End the current round"""
         await interaction.response.defer(ephemeral=True, thinking=True)
         
@@ -611,9 +632,12 @@ class Boss(commands.GroupCog, name="boss"):
         await interaction.followup.send("Round successfully started", ephemeral=True)
         
         # Prepare boss image file for attack phase
-        extension = self.bossball.wild_card.name.split(".")[-1]
-        file_location = str(self.bossball.wild_card.path)
-        file = discord.File(file_location, filename=f"boss.{extension}")
+        if self.bossattack_image is None:
+            extension = self.bossball.wild_card.name.split(".")[-1]
+            file_location = str(self.bossball.wild_card.path)
+            file = discord.File(file_location, filename=f"boss.{extension}")
+        else:
+            file = await self.bossattack_image.to_file()
         
         await interaction.channel.send(
             f"Round {self.round}\n# {self.bossball.country} is preparing to attack! {self.bot.get_emoji(self.bossball.emoji_id)}",
@@ -645,9 +669,12 @@ class Boss(commands.GroupCog, name="boss"):
         await interaction.followup.send("Round successfully started", ephemeral=True)
         
         # Prepare boss image file for defend phase
-        extension = self.bossball.wild_card.name.split(".")[-1]
-        file_location = str(self.bossball.wild_card.path)
-        file = discord.File(file_location, filename=f"boss.{extension}")
+        if self.bossdefend_image is None:
+            extension = self.bossball.wild_card.name.split(".")[-1]
+            file_location = str(self.bossball.wild_card.path)
+            file = discord.File(file_location, filename=f"boss.{extension}")
+        else:
+            file = await self.bossdefend_image.to_file()
         
         await interaction.channel.send(
             f"Round {self.round}\n# {self.bossball.country} is preparing to defend! {self.bot.get_emoji(self.bossball.emoji_id)}",
@@ -880,6 +907,8 @@ Damage Records: {len(self.usersdamage)}"""
         self.attack = False
         self.bossattack = 0
         self.bossball = None
+        self.bossattack_image = None
+        self.bossdefend_image = None
         self.disqualified = []
         self.lasthitter = 0
         self.pending_selections = {}
