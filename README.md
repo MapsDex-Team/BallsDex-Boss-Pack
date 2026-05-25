@@ -8,15 +8,15 @@ Boss battle system for **BallsDex V3**. Players battle against powerful boss ene
 |---|---|
 | `/boss select` | Select countryball to use against the boss. Players choose an item to use against the boss using this command |
 | `/boss ongoing` | Show your damage to the boss in the current fight |
-| `/boss admin_start` | Start a boss battle with the specified ball and HP. Choose a countryball to be the boss (required). Choose HP (Required) |
-| `/boss admin_attack` | Start a round where the Boss Attacks. With this command you can choose how much attack the boss deals (Optional, Defaulted to RNG from default 0 to 2000, can be changed in code) |
-| `/boss admin_defend` | Start a round where the Boss Defends |
-| `/boss admin_end_round` | End the current round and displays user performance about the round |
-| `/boss admin_conclude` | Finish the boss, conclude the Winner. This ends the boss battle and rewards the winner, but you can choose to have *no* winner |
-| `/boss admin_disqualify` | Disqualify a member from the boss |
-| `/boss admin_hackjoin` | Force join a user to the boss battle |
-| `/boss admin_ping` | Ping all the alive players |
-| `/boss admin_stats` | See current stats of the boss |
+| `/boss admin start` | Start a boss battle with the specified ball and HP. Choose a countryball to be the boss (required). Choose HP (Required), Choose custom images for defend, attack and start image |
+| `/boss admin attack` | Start a round where the Boss Attacks. With this command you can choose how much attack the boss deals (Optional, Defaulted to RNG from default 0 to 2000, can be changed in code) |
+| `/boss admin defend` | Start a round where the Boss Defends |
+| `/boss admin end_round` | End the current round and displays user performance about the round |
+| `/boss admin conclude` | Finish the boss, conclude the Winner. This ends the boss battle and rewards the winner, but you can choose to have *no* winner |
+| `/boss admin disqualify` | Disqualify a member from the boss |
+| `/boss admin hackjoin` | Force join a user to the boss battle |
+| `/boss admin ping` | Ping all the alive players |
+| `/boss admin stats` | See current stats of the boss |
 
 **How to Play:** Some commands can only be used by admins, these control the boss actions. Players can join using the join button that appears when the boss starts. Repeat the attack/defend rounds until the boss' HP runs out, then conclude the battle.
 
