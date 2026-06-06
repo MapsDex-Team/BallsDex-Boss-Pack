@@ -25,18 +25,31 @@ log = logging.getLogger("ballsdex.packages.boss")
 Interaction = discord.Interaction["BallsDexBot"]
 
 # Configuration constants
-SHINYEMOJI = "✨" # Emoji to recognize shiny with
-# EMOJI
-MYTHICALEMOJI = "🌌" # Emoji to recognize mythical with
-# EMOJI
-SHINYBUFFS = [1000,1000] # Shiny Buffs
-# ATK, HP
-MYTHICALBUFFS = [2500,2500] # Mythical Buffs
-# ATK, HP
+SPECIAL_BUFFS = {
+    "✨": (1000,1000), # Shiny Buffs
+    "🌌": (2500,2500), # Mythical Buffs
+} # Special buffs
+# Emoji: (ATK, HP)
 MAXSTATS = [12000,12000] # Max stats a card is limited to (before buffs)
 # ATK, HP
 DAMAGERNG = [0,2000] # Damage a boss can deal IF attack_amount has NOT been inputted in /boss admin attack.
 # Min Damage, Max Damage
+
+def ball_description(countryball, bot, *, include_emoji: bool = True) -> str:
+    if not hasattr(countryball, "description"):
+        return ""
+    return countryball.description(short=True, include_emoji=include_emoji, bot=bot)
+
+
+def get_special_buffs(countryball, bot) -> tuple[int, int]:
+    if not getattr(countryball, "special_id", None):
+        return 0, 0
+
+    description = ball_description(countryball, bot)
+    return next(
+        (buffs for emoji, buffs in SPECIAL_BUFFS.items() if emoji in description),
+        (0, 0),
+    )
 
 class JoinButton(discord.ui.View):
     """Join button for boss battles"""
@@ -377,12 +390,11 @@ class Boss(commands.GroupCog, name="boss"):
         ball_attack = min(max(countryball.attack, 0), MAXSTATS[0])
         ball_health = min(max(countryball.health, 0), MAXSTATS[1])
         
-        # Apply shiny buffs if applicable
-        messageforuser = f"{countryball.description(short=True, include_emoji=True, bot=self.bot)} has been selected for this round, with {ball_attack} ATK and {ball_health} HP"
-        if countryball.special_id and MYTHICALEMOJI in messageforuser:
-            messageforuser = f"{countryball.description(short=True, include_emoji=True, bot=self.bot)} has been selected for this round, with {ball_attack}+{MYTHICALBUFFS[0]} ATK and {ball_health}+{MYTHICALBUFFS[1]} HP"
-        elif countryball.special_id and SHINYEMOJI in messageforuser:
-            messageforuser = f"{countryball.description(short=True, include_emoji=True, bot=self.bot)} has been selected for this round, with {ball_attack}+{SHINYBUFFS[0]} ATK and {ball_health}+{SHINYBUFFS[1]} HP"
+        special_attack_buff, special_health_buff = get_special_buffs(countryball, self.bot)
+        total_attack = ball_attack + special_attack_buff
+        total_health = ball_health + special_health_buff
+        ball_display = ball_description(countryball, self.bot)
+        messageforuser = f"{ball_display} has been selected for this round, with {total_attack} ATK and {total_health} HP"
         
         await interaction.followup.send(messageforuser, ephemeral=True)
         await self._log_action(f"-# Round {self.round}\n{interaction.user}'s {messageforuser}\n-# -------")
@@ -544,28 +556,24 @@ class Boss(commands.GroupCog, name="boss"):
             ball_attack = min(max(ball.attack, 0), MAXSTATS[0])
             ball_health = min(max(ball.health, 0), MAXSTATS[1])
             
-            # Re-check shiny buffs for logic
-            ball_desc = ball.description(short=True, include_emoji=True, bot=self.bot)
-            if ball.special_id and MYTHICALEMOJI in ball_desc:
-                ball_health += MYTHICALBUFFS[1]
-                ball_attack += MYTHICALBUFFS[0]
-            elif ball.special_id and SHINYEMOJI in ball_desc:
-                ball_health += SHINYBUFFS[1]
-                ball_attack += SHINYBUFFS[0]
+            ball_desc = ball_description(ball, self.bot)
+            special_attack_buff, special_health_buff = get_special_buffs(ball, self.bot)
+            ball_health += special_health_buff
+            ball_attack += special_attack_buff
             
             if not self.attack:  # Boss is defending, players attack
                 self.bossHP -= ball_attack
                 self.usersdamage.append([user_id, ball_attack, ball_desc])
-                self.currentvalue += f"{await self.bot.fetch_user(user_id)}'s {ball.description(short=True, bot=self.bot)} has dealt {ball_attack} damage!\n"
+                self.currentvalue += f"{await self.bot.fetch_user(user_id)}'s {ball_description(ball, self.bot, include_emoji=False)} has dealt {ball_attack} damage!\n"
                 self.lasthitter = user_id
             else:  # Boss is attacking, players defend
                 user_obj = await self.bot.fetch_user(user_id)
                 if self.bossattack >= ball_health:
                     if user_id in self.users:
                         self.users.remove(user_id)
-                    self.currentvalue += f"{user_obj}'s {ball.description(short=True, bot=self.bot)} had {ball_health}HP and died!\n"
+                    self.currentvalue += f"{user_obj}'s {ball_description(ball, self.bot, include_emoji=False)} had {ball_health} HP and died!\n"
                 else:
-                    self.currentvalue += f"{user_obj}'s {ball.description(short=True, bot=self.bot)} had {ball_health}HP and survived!\n"
+                    self.currentvalue += f"{user_obj}'s {ball_description(ball, self.bot, include_emoji=False)} had {ball_health} HP and survived!\n"
 
         # Clear pending selections for next round
         self.pending_selections = {}
