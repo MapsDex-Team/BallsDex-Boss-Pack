@@ -1,6 +1,6 @@
 # BallsDex V3 Boss Package
 
-Boss battle system for **BallsDex V3**. Players battle against powerful boss enemies using their countryballs.
+Boss fight system for **BallsDex V3**. Players fight against powerful boss enemies using their countryballs.
 
 ## Commands
 
@@ -28,7 +28,7 @@ Boss battle system for **BallsDex V3**. Players battle against powerful boss ene
 
 2. **Only use a countryball as a boss** if it has both the collectible and wild cards stored, otherwise this will result in an error. Cards without wild cards do not work as a boss. If you are using a ball made from the admin panel for the boss, then it's fine, since admin panel requires wild card.
 
-3. You may change the shiny buffs in the code to suit your dex better - it's defaulted at 1000 HP & 1000 ATK.
+3. You may modify the special buffs in the code to suit your dex better - They're ordered by `(ATK, HP)`.
 
 ### 2 — Configure extra.toml
 
