@@ -246,8 +246,6 @@ class Boss(commands.GroupCog, name="boss"):
         self.currentvalue = ""  # Track round actions
         self.pending_selections: dict[int, BallInstance] = {}
         
-        log.info("Boss Cog initialized")
-        
     admin = app_commands.Group(name="admin", description="Boss administration commands")
 
     def admin_permissions_check():
