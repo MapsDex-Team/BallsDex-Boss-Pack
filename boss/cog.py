@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import io
 import logging
 import random
@@ -14,7 +12,7 @@ from django.utils import timezone
 from bd_models.models import Ball, BallInstance, Player
 from bd_models.models import balls as balls_cache
 from bd_models.models import specials
-from ballsdex.core.utils.transformers import BallTransform, BallInstanceTransform, BallEnabledTransform
+from ballsdex.core.utils.transformers import BallTransform, BallInstanceTransform, BallEnabledTransform, SpecialEnabledTransform
 from ballsdex.core.utils import checks
 from ballsdex.settings import settings
 
@@ -22,7 +20,6 @@ if TYPE_CHECKING:
     from ballsdex.core.bot import BallsDexBot
 
 log = logging.getLogger("ballsdex.packages.boss")
-Interaction = discord.Interaction["BallsDexBot"]
 
 # Configuration constants
 SPECIAL_BUFFS = {
@@ -223,7 +220,7 @@ class BossBattleReward(models.Model):
 class Boss(commands.GroupCog, name="boss"):
     """Boss battle system — fight powerful bosses with your collection!"""
     
-    def __init__(self, bot: BallsDexBot):
+    def __init__(self, bot: "BallsDexBot"):
         self.bot = bot
         
         # Boss battle state
@@ -337,14 +334,21 @@ class Boss(commands.GroupCog, name="boss"):
 
     
     @app_commands.command()
-    async def select(self, interaction: Interaction, countryball: BallInstanceTransform):
+    async def select(
+        self,
+        interaction: discord.Interaction["BallsDexBot"],
+        countryball: BallInstanceTransform,
+        special: SpecialEnabledTransform | None = None,
+    ):
         """
         Select countryball to use against the boss
         
         Parameters
         ----------
-        countryball: Ball
-            The countryball to use for this round
+        countryball: BallInstance
+            The countryball you want to select
+        special: Special
+            Filter the results of autocompletion to a special event. Ignored afterwards.
         """
         await interaction.response.defer(ephemeral=True, thinking=True)
         
@@ -399,7 +403,7 @@ class Boss(commands.GroupCog, name="boss"):
 
     
     @app_commands.command()
-    async def ongoing(self, interaction: Interaction):
+    async def ongoing(self, interaction: discord.Interaction["BallsDexBot"]):
         """
         Show your damage to the boss in the current fight
         """
