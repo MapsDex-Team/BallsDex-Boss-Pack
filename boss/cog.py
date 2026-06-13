@@ -23,11 +23,13 @@ log = logging.getLogger("ballsdex.packages.boss")
 
 # Configuration constants
 SPECIAL_BUFFS = {
-    "✨": (1000,1000), # Shiny Buffs
-    "🌌": (2500,2500), # Mythical Buffs
+    "✨": (2000,2000), # Shiny Buffs
+    "🔮": (5000,5000), # Mythical Buffs
+    "☄️": (1000,1000), # Elemental Buffs
+    "👁️🪽": (7500,7500), # Empyrean Buffs
 } # Special buffs
 # Emoji: (ATK, HP)
-MAXSTATS = [12000,12000] # Max stats a card is limited to (before buffs)
+MAXSTATS = [15000,15000] # Max stats a card is limited to (before buffs)
 # ATK, HP
 DAMAGERNG = [0,2000] # Damage a boss can deal IF attack_amount has NOT been inputted in /boss admin attack.
 # Min Damage, Max Damage
